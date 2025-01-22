@@ -29,6 +29,11 @@ export const CartSlice = createSlice({
   },
 });
 
+// Selector to calculate total quantity
+export const selectTotalQuantity = (state) => {
+  return state.cart.items.reduce((total, item) => total + item.quantity, 0);
+};
+
 export const { addItem, removeItem, updateQuantity } = CartSlice.actions;
 
 export default CartSlice.reducer;

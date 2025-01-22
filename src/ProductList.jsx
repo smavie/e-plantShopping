@@ -1,11 +1,16 @@
 import React, { useState,useEffect } from 'react';
 import './ProductList.css'
 import CartItem from './CartItem';
-import { addItem, removeItem, updateQuantity} from './CartSlice';
+import { addItem, removeItem, updateQuantity, selectTotalQuantity } from './CartSlice';
+import { useSelector, useDispatch } from 'react-redux';
 function ProductList() {
     const [showCart, setShowCart] = useState(false); 
     const [showPlants, setShowPlants] = useState(false); // State to control the visibility of the About Us page
     const [addedToCart, setAddedToCart] = useState({});
+    const totalQuantity = useSelector(selectTotalQuantity);
+
+
+    const dispatch = useDispatch();
 
     const plantsArray = [
         {
@@ -274,41 +279,89 @@ const handlePlantsClick = (e) => {
 
             <div style={styleObjUl}>
                 <div> <a href="#" onClick={(e)=>handlePlantsClick(e)} style={styleA}>Plants</a></div>
-                <div> 
-                    <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
-                        <h1 className='cart'>
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" id="IconChangeColor" height="68" width="68">
-                                <rect width="156" height="156" fill="none"></rect>
-                                <circle cx="80" cy="216" r="12"></circle>
-                                <circle cx="184" cy="216" r="12"></circle>
-                                <path d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" fill="none" stroke="#faf9f9" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" id="mainIconPathAttribute">
-                                </path>
-                            </svg>
-                        </h1>
-                    </a>
-                </div>
+                <div>
+  <a href="#" onClick={(e) => handleCartClick(e)} style={styleA}>
+    <div 
+      className="cart-container" style={{ position: 'relative', display: 'inline-block', width: '68px', height: '68px' }}
+    >
+      <svg 
+        xmlns="http://www.w3.org/2000/svg" 
+        viewBox="0 0 256 256" 
+        id="IconChangeColor" 
+        height="68" 
+        width="68"
+      >
+        <rect width="156" height="156" fill="none"></rect>
+        <circle cx="80" cy="216" r="12">13</circle>
+        <circle cx="184" cy="216" r="12"></circle>
+        <path 
+          d="M42.3,72H221.7l-26.4,92.4A15.9,15.9,0,0,1,179.9,176H84.1a15.9,15.9,0,0,1-15.4-11.6L32.5,37.8A8,8,0,0,0,24.8,32H8" 
+          fill="none" 
+          stroke="#faf9f9" 
+          strokeLinecap="round" 
+          strokeLinejoin="round" 
+          strokeWidth="2" 
+          id="mainIconPathAttribute"
+        ></path>
+      </svg>
+      {totalQuantity > 0 && (
+        <span 
+          className="cart-quantity" 
+          style={{
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            /*backgroundColor: 'red',*/
+            color: 'white',
+            borderRadius: '50%',
+            width: '24px',
+            height: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            fontSize: '16px',
+            fontWeight: 'bold',
+          }}
+        >
+          {totalQuantity}
+        </span>
+      )}
+    </div>
+  </a>
+</div>
+
             </div>
         </div>
         {!showCart? (
         <div className="product-grid">
-            {plantsArray.map((plantCategory, categoryIndex) => (
-                <div key={categoryIndex}>
-                    <h1>{plantCategory.category}</h1>
-                    <div className="product-list">
-                    {plantCategory.plants.map((plant, index) => (
-                            <div className="product-card" key={index}>
-                                <img className="product-image">{plant.image}</img>
-                                <div className="product-title">{plant.name}</div>
-                                <div className="text">{plant.description}</div>
-                                <div className="product-price">{plant.cost}</div>
-                                <button className="product-button" onClick={() => handleAddToCart(plant)}>Add to cat</button>
-                        
-                            </div>
-                        ))}
-                    </div>
-                    
-                </div>
+                {plantsArray.map((category, index) => (
+        <div key={index}>
+            <div style={{textAlign: "center", paddingTop: "1rem"}}>
+                <h1 style={{display: "inline-block",borderTop: "2px solid black",borderBottom: "2px solid black", width: "fit-content"}}>
+                    <div>{category.category}</div>
+                </h1>
+            </div>
+
+        <div className="product-list">
+            {category.plants.map((plant, plantIndex) => (
+            <div className="product-card" key={plantIndex}>
+                <div className="product-title">{plant.name}</div>
+                <img className="product-image" src={plant.image} alt={plant.name} />
+                <div className="product-description"><i>{plant.description}</i></div>
+                {/*Similarly like the above plant.name show other details like description and cost*/}
+                <button  className={`product-button ${addedToCart[plant.name] ? "added-to-cart" : ""}`}
+                    onClick={() => handleAddToCart(plant)}
+                    disabled={addedToCart[plant.name]} // Disable the button if the plant is already added to the cart
+                    >
+                    {addedToCart[plant.name] ? "Added to Cart" : "Add to Cart"}
+                    </button>
+
+            </div>
             ))}
+        </div>
+    </div>
+    ))}
 
         </div>
  ) :  (
